@@ -151,3 +151,12 @@ Abrir [http://localhost:3000](http://localhost:3000)
 - El historial queda guardado en la base de datos
 
 ---
+
+## Supuestos documentados
+
+- La eliminación de tickets solo está disponible para agentes (no para usuarios),
+  porque en un sistema real el usuario no debería poder borrar su propio reporte
+- La detección de "agente disponible" en el chat se basa en si hay algún agente
+  conectado a esa conversación; si no hay ninguno, la IA toma el hilo
+- El rol del usuario se asigna directamente en la tabla `profiles` al crear la cuenta;
+  no hay flujo de registro público para mantener el sistema simple
