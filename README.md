@@ -1,62 +1,78 @@
-# Help Desk ADSO — Módulo 1: Gestión de Tickets
+# Help Desk ADSO
 
-Sistema de soporte técnico desarrollado como prueba técnica para prácticas ADSO.
+Sistema de soporte técnico desarrollado como prueba técnica para EduLabs.
+Incluye gestión de tickets, asistente de IA y chat en tiempo real.
 
-## Tecnologías usadas
+**[Ver sistema en producción](https://prueba-tecnica-five-wine.vercel.app/dashboard)**
 
-- **Next.js 14** — Framework de React con App Router
-- **TypeScript** — Tipado estático
-- **Tailwind CSS** — Estilos utilitarios
-- **Supabase** — Base de datos, autenticación y preparación para realtime
-- **PostgreSQL** — Base de datos relacional (gestionada por Supabase)
-- **Vercel** — Deploy en producción
+Usuarios de prueba:
+- **Usuario:** usuario@helpdesk.com / 123456
+- **Agente:** agente@helpdesk.com / 123456
+
+---
+
+## ¿Qué hace el sistema?
+
+El sistema tiene tres módulos integrados:
+
+**Gestión de tickets** — el usuario crea tickets describiendo su problema,
+el agente los atiende, cambia estados y el sistema guarda un historial
+automático de cada cambio.
+
+**Asistente de IA (Gemini)** — al crear un ticket, la IA sugiere la categoría
+y prioridad según la descripción. En el panel del agente, analiza el sentimiento
+del ticket, sugiere una respuesta inicial y responde preguntas libres del agente
+sobre el caso.
+
+**Chat en tiempo real** — el usuario puede abrir un chat desde su ticket.
+Si no hay agente disponible, la IA responde automáticamente. Cuando un agente
+se conecta, toma la conversación. Todo el historial queda guardado en la base
+de datos.
+
+---
+
+## Stack
+
+- **Next.js 14 App Router** — elegido porque permite mezclar Server Components
+  y Client Components, lo que simplifica mucho el manejo de autenticación y
+  las consultas a la base de datos
+- **TypeScript** — tipado en todo el proyecto
+- **Tailwind CSS** — estilos
+- **Supabase** — base de datos PostgreSQL, autenticación, y Realtime para el chat
+- **Gemini API** — modelo `gemini-1.5-flash` para las funciones de IA
+- **Vercel** — deploy
 
 ---
 
 ## Estructura del proyecto
-
-```
 helpdesk-adso/
-├── app/                        # Páginas y rutas (Next.js App Router)
-│   ├── auth/login/             # Página de login
+├── app/                        # Rutas (Next.js App Router)
+│   ├── auth/login/             # Login
 │   ├── dashboard/              # Panel principal
-│   ├── tickets/                # Páginas del usuario normal
-│   │   ├── nuevo/              # Crear ticket
-│   │   └── [id]/               # Detalle de ticket
-│   └── admin/tickets/          # Páginas del agente
-│       └── [id]/               # Detalle con acciones de agente
+│   ├── tickets/                # Vista del usuario
+│   ├── admin/tickets/          # Vista del agente
+│   ├── chat/[ticketId]/        # Chat del usuario
+│   ├── admin/chat/             # Chat del agente
+│   └── api/ia/                 # API routes de IA
+│       ├── chat/               # Respuestas automáticas en chat
+│       ├── analizar/           # Análisis de ticket nuevo
+│       ├── preguntar/          # Preguntas libres del agente
+│       └── respuesta/          # Respuesta sugerida al agente
 │
-├── components/                 # Componentes reutilizables
-│   ├── ui/                     # Componentes base (Badge, Boton)
-│   ├── tickets/                # Componentes de tickets
-│   └── layout/                 # Navbar y estructura
-│
-├── lib/                        # Configuración de clientes Supabase
-│   ├── supabase-cliente.ts     # Cliente para el navegador
-│   └── supabase-servidor.ts    # Cliente para el servidor
-│
-├── services/                   # Lógica de acceso a datos
-│   ├── auth-servicio.ts        # Login, logout, sesión
-│   └── tickets-servicio.ts     # CRUD de tickets e historial
-│
+├── components/                 # Componentes de UI
+├── services/                   # Acceso a datos y lógica de IA
+├── hooks/                      # useAuth
+├── lib/                        # Clientes de Supabase
 ├── types/                      # Tipos TypeScript
-│   └── index.ts                # Todos los tipos del proyecto
-│
-├── hooks/                      # Custom hooks de React
-│   └── useAuth.ts              # Estado de autenticación
-│
-├── utils/                      # Funciones de utilidad
-│   └── formato.ts              # Fechas, etiquetas, colores
-│
-└── supabase/                   # Scripts de base de datos
-    └── schema.sql              # Todas las tablas y políticas
-```
+├── utils/                      # Formato de fechas y etiquetas
+└── supabase/
+└── schema.sql              # Tablas, políticas RLS y triggers
 
 ---
 
-## Instalación paso a paso
+## Instalación local
 
-### 1. Clonar e instalar dependencias
+### 1. Clonar e instalar
 
 ```bash
 git clone <url-del-repo>
@@ -66,31 +82,20 @@ npm install
 
 ### 2. Crear proyecto en Supabase
 
-1. Ve a [supabase.com](https://supabase.com) y crea una cuenta
-2. Crea un nuevo proyecto
-3. Espera a que termine de iniciarse (~2 minutos)
+1. Crear cuenta en [supabase.com](https://supabase.com)
+2. Crear nuevo proyecto y esperar ~2 minutos
+3. Ir a **SQL Editor**, pegar el contenido de `supabase/schema.sql` y ejecutar
 
-### 3. Ejecutar el script SQL
+### 3. Crear usuarios de prueba
 
-1. En Supabase, ve a **SQL Editor**
-2. Copia todo el contenido de `supabase/schema.sql`
-3. Pégalo en el editor y haz clic en **Run**
-4. Verifica que no haya errores
+En **Authentication > Users > Add user**:
 
-### 4. Crear usuarios de prueba
+| Email | Contraseña |
+|-------|-----------|
+| usuario@helpdesk.com | 123456 |
+| agente@helpdesk.com | 123456 |
 
-En Supabase, ve a **Authentication > Users > Add user**:
-
-| Email | Contraseña | Rol |
-|-------|-----------|-----|
-| usuario@helpdesk.com | 123456 | user |
-| agente@helpdesk.com | 123456 | agent |
-
-Después de crear cada usuario, **anota el UUID** que le asigna Supabase.
-
-### 5. Insertar perfiles en la base de datos
-
-En **SQL Editor**, reemplaza los UUIDs con los reales y ejecuta:
+Después de crearlos, ir a **SQL Editor** y ejecutar (reemplazando los UUIDs):
 
 ```sql
 INSERT INTO profiles (id, nombre, rol) VALUES
@@ -98,90 +103,50 @@ INSERT INTO profiles (id, nombre, rol) VALUES
   ('UUID-DEL-AGENTE', 'Ana Agente', 'agent');
 ```
 
-### 6. Configurar variables de entorno
+### 4. Variables de entorno
 
 ```bash
 cp .env.example .env.local
 ```
 
-Edita `.env.local` con tus credenciales de Supabase:
-- Ve a **Settings > API** en tu proyecto de Supabase
-- Copia la **Project URL** y la **anon public key**
-
-```
+Completar con las credenciales de **Settings > API** en Supabase,
+y con la API key de Gemini desde [aistudio.google.com](https://aistudio.google.com):
 NEXT_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=tu-anon-key
-```
+GEMINI_API_KEY=tu-gemini-key
 
-### 7. Ejecutar en desarrollo
+### 5. Correr en desarrollo
 
 ```bash
 npm run dev
 ```
 
-Abre [http://localhost:3000](http://localhost:3000)
+Abrir [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## Usuarios de prueba
+## Funcionalidades por módulo
 
-| Rol | Email | Contraseña | Puede hacer |
-|-----|-------|-----------|-------------|
-| Usuario | usuario@helpdesk.com | 123456 | Crear tickets, ver sus tickets |
-| Agente | agente@helpdesk.com | 123456 | Ver todos los tickets, cambiar estados |
+### Módulo 1 — Tickets
+- Crear ticket con título, descripción, categoría y prioridad
+- Listar con filtros por estado y categoría
+- Ver detalle de un ticket
+- Cambiar estado: Abierto → En Progreso → Resuelto → Cerrado
+- Historial automático de cambios (fecha, estado anterior, estado nuevo)
+- Eliminar ticket solo si está en estado Cerrado
 
----
+### Módulo 2 — Asistente de IA
+- Al crear un ticket: sugiere categoría, prioridad, y mejoras al título o descripción
+- En el panel del agente: detecta sentimiento, sugiere respuesta inicial y permite
+  hacerle preguntas libres al asistente sobre el ticket
+- Usa Gemini como API principal; si no hay API key, usa un fallback con reglas
+  simples para que el sistema siga funcionando
 
-## Funcionalidades del Módulo 1
-
-- **Login/Logout** con email y contraseña
-- **Crear ticket** con título, descripción, categoría y prioridad
-- **Listar tickets** con filtros por estado y categoría
-- **Ver detalle** de un ticket
-- **Cambiar estado** (Abierto → En Progreso → Resuelto → Cerrado)
-- **Historial automático** de cambios de estado con nota opcional
-- **Protección de rutas** según el rol
-
----
-
-## Deploy en Vercel
-
-```bash
-# Instalar CLI de Vercel
-npm i -g vercel
-
-# Hacer deploy
-vercel
-
-# Configurar variables de entorno en el panel de Vercel:
-# NEXT_PUBLIC_SUPABASE_URL
-# NEXT_PUBLIC_SUPABASE_ANON_KEY
-```
+### Módulo 3 — Chat en tiempo real
+- El usuario abre el chat desde su ticket
+- Si no hay agente, la IA responde automáticamente
+- El agente ve las conversaciones activas y puede unirse
+- Comunicación en tiempo real con Supabase Realtime (sin recargar la página)
+- El historial queda guardado en la base de datos
 
 ---
-
-## Módulos futuros (preparados pero no implementados)
-
-### Módulo 2 — Chat en tiempo real
-Las tablas `conversaciones` y `mensajes` ya están creadas en el SQL.
-Supabase Realtime ya está habilitado para la tabla `mensajes`.
-
-### Módulo 3 — Asistente de IA
-El tipo `SugerenciaIA` ya está definido en `types/index.ts`.
-Se puede integrar con la API de Claude (Anthropic) o similares.
-
----
-
-## Preguntas frecuentes para entrevista
-
-**¿Por qué Next.js App Router?**
-Permite usar Server Components para obtener datos en el servidor directamente, simplificando el código y mejorando el rendimiento.
-
-**¿Qué son las RLS (Row Level Security) de Supabase?**
-Son políticas de seguridad que se aplican directamente en la base de datos. Garantizan que cada usuario solo vea y modifique sus propios datos, incluso si alguien intenta acceder directamente a la API.
-
-**¿Por qué separar `services` de los componentes?**
-Para mantener el principio de responsabilidad única: los componentes se encargan de la UI, y los servicios de comunicarse con la base de datos. Si cambias la base de datos, solo tocas los servicios.
-
-**¿Cómo funciona el historial de cambios?**
-Cada vez que un agente cambia el estado, la función `actualizarEstadoTicket` hace dos operaciones: actualiza el ticket y además inserta un registro en `ticket_historial` con el estado anterior y el nuevo.
