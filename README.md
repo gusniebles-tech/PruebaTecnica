@@ -113,6 +113,7 @@ Completar con las credenciales de **Settings > API** en Supabase,
 y con la API key de Gemini desde [aistudio.google.com](https://aistudio.google.com):
 NEXT_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=tu-anon-key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=tu-publishable-key-aqui
 GEMINI_API_KEY=tu-gemini-key
 
 ### 5. Correr en desarrollo
