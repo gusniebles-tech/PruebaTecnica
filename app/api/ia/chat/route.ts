@@ -49,6 +49,14 @@ Nuevo mensaje del usuario: ${mensaje}`
     }
   )
 
+   if (res.status === 429) {
+    return respuestaFallbackChat(mensaje)
+  }
+
+  if (!res.ok) {
+    throw new Error(`Gemini error ${res.status}`)
+  }
+
   const data = await res.json()
   return data.candidates[0].content.parts[0].text
 }
