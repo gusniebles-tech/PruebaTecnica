@@ -6,7 +6,7 @@ const hayApiKey = !!process.env.GEMINI_API_KEY
 
 console.log('[IA] GEMINI_API_KEY disponible:', hayApiKey)
 
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`
 
 async function llamarGemini(prompt: string): Promise<string> {
   const res = await fetch(`${GEMINI_URL}?key=${process.env.GEMINI_API_KEY}`, {
