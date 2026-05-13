@@ -102,15 +102,6 @@ export default function PaginaLogin() {
           </form>
         </div>
 
-        {/* Credenciales de prueba */}
-        <div className="mt-5 p-4 bg-slate-100 rounded-lg border border-slate-200">
-          <p className="text-xs font-medium text-slate-600 mb-2">Usuarios de prueba:</p>
-          <div className="space-y-1 text-xs text-slate-500">
-            <p><span className="font-medium">Usuario:</span> usuario@helpdesk.com / 123456</p>
-            <p><span className="font-medium">Agente:</span> agente@helpdesk.com / 123456</p>
-          </div>
-        </div>
-
       </div>
     </div>
   )
